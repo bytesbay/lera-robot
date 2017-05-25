@@ -1,7 +1,9 @@
 #include <Arduino.h>
 
 const uint8_t ACTION_DELAY = 50;
-uint8_t AUTO = false; // Положение автопилота (ВКЛ\ВЫКЛ)
+bool AUTO = false; // Положение автопилота (ВКЛ\ВЫКЛ)
+bool ROTATING = false;
+uint8_t SIDE = random(0, 2);
 
 /* ДВИЖЕНИЕ */
 void forward() {
@@ -40,20 +42,32 @@ void backRight() {
 	digitalWrite(4, HIGH);
 	delay(ACTION_DELAY);
 }
+void fullStop() {
+	digitalWrite(2, LOW);
+	digitalWrite(3, LOW);
+	digitalWrite(4, LOW);
+	digitalWrite(5, LOW);
+}
 
 /* ДИСТАНЦИЯ */
-int getDist() {
-	// Clears the trigPin
+float getDist() {
+
 	digitalWrite(11, LOW);
 	delayMicroseconds(2);
-	// Sets the trigPin on HIGH state for 10 micro seconds
 	digitalWrite(11, HIGH);
 	delayMicroseconds(10);
 	digitalWrite(11, LOW);
-	return pulseIn(12, HIGH) * (0.034 / 2);
+
+	return pulseIn(12, HIGH) / 29 / 2;
+}
+
+/* ОСВЕЩЕНИЕ */
+int getLightness() {
+	return analogRead(0);
 }
 
 void setup() {
+	randomSeed(analogRead(3));
 	Serial.begin(9600);
 	pinMode(2, OUTPUT); // ЛЕВО-Назад
 	pinMode(3, OUTPUT); // ЛЕВО-Вперед
@@ -70,25 +84,23 @@ void loop() {
 
 		uint8_t input = Serial.read();
 
-		if(input == 'F') forward();
-		else if(input == 'B') back();
-		else if(input == 'L') left();
-		else if(input == 'R') right();
-        else if(input == 'I') forwardLeft();
-    	else if(input == 'G') forwardRight();
-        else if(input == 'J') backLeft();
-    	else if(input == 'H') backRight();
+		switch (input) {
+			case 'F': forward(); break;
+			case 'B': back(); break;
+			case 'L': left(); break;
+			case 'R': right(); break;
 
-		else if(input == 'A') AUTO = true; // Вкл автопилот
-		else if(input == 'R') AUTO = false; // Выкл автопилот
+			case 'I': forwardLeft(); break;
+			case 'G': forwardRight(); break;
+			case 'J': backLeft(); break;
+			case 'H': backRight(); break;
 
-		digitalWrite(2, LOW);
-		digitalWrite(3, LOW);
-		digitalWrite(4, LOW);
-		digitalWrite(5, LOW);
+			case 'A': AUTO = true; break;
+			case 'O': AUTO = false; break;
+		}
 	}
 
-	if(analogRead(0) > 600) {
+	if(getLightness() > 600) {
 		digitalWrite(13, HIGH);
 	} else {
 		digitalWrite(13, LOW);
@@ -96,22 +108,18 @@ void loop() {
 
 	/* Если включен автопилот */
 	if(AUTO) {
-		/* Тупо едет вперед */
-		forward();
-		int tmp_dist = getDist();
-		uint8_t side = random(0, 1);
 
-		if(tmp_dist < 20) {
+		/* Если в пределах 20см есть препятствие, то начинает крутиться */
+		if(getDist() < 30) {
 			/* Крутиться до тех пор, пока не станет стенки */
-			for(uint8_t i = 0; getDist() < 20; i++) {
-				/*
-					0 - значит повернуть на лево
-					1 - на право
-				*/
-
-				if(side == 0) left();
-				else right();
-			}
+			
+			if(!SIDE) left();
+			else right();
+		} else {
+			forward();
+			SIDE = random(0, 2);
 		}
 	}
+
+	fullStop();
 }
