@@ -5,6 +5,7 @@ bool AUTO = false; // Положение автопилота (ВКЛ\ВЫКЛ)
 uint8_t SIDE = 0;
 
 
+
 /* ДВИЖЕНИЕ */
 void forward() {
 	digitalWrite(3, HIGH);
@@ -80,6 +81,16 @@ int getLightness() {
 	return analogRead(0);
 }
 
+/* ВИБРАЦИЯ */
+void vibrate() {
+	left();
+	right();
+	left();
+	right();
+	left();
+	right();
+}
+
 void setup() {
 	randomSeed(analogRead(3));
 	Serial.begin(9600);
@@ -110,11 +121,21 @@ void loop() {
 			case 'J': backLeft(); break;
 			case 'H': backRight(); break;
 
-			case 'A': AUTO = true; break;
-			case 'O': AUTO = false; break;
+			case 'A':
+				if(!AUTO) AUTO = true;
+				else AUTO = false;
+				break;
+			case 'D':
+				Serial.print("Distance: ");
+				Serial.print(getDist());
+				Serial.print(", Ligtness: ");
+				Serial.print(getLightness());
+				Serial.print(", IR-sensor: ");
+				Serial.println(digitalRead(10));
+				break;
 
 			/* Вибрация */
-			case 'V': left();right();left();right();left();right();break;
+			case 'V': vibrate(); break;
 		}
 	}
 
@@ -128,17 +149,12 @@ void loop() {
 	if(AUTO) {
 
 		/* Если в пределах 20см есть препятствие, то начинает крутиться */
-		if(getDist() < 30) {
+		if(getDist() < 25 && !digitalRead(10)) {
 
 			/* Крутиться до тех пор, пока не станет стенки */
 			if(!SIDE) left();
 			else right();
 
-		}
-		/* Если слишком близко к объекту, то отъехать назад */
-		else if(!digitalRead(10)) {
-			if(SIDE) backLeft();
-			else backRight();
 		}
 		/* Если ничего нет, то ехать вперед и обновлять сторону */
 		else {
