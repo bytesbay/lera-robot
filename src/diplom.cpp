@@ -3,7 +3,6 @@
 const uint8_t ACTION_DELAY = 50;
 bool AUTO = false; // Положение автопилота (ВКЛ\ВЫКЛ)
 bool ROTATING = false;
-uint8_t SIDE = random(0, 2);
 
 /* ДВИЖЕНИЕ */
 void forward() {
@@ -67,7 +66,6 @@ int getLightness() {
 }
 
 void setup() {
-	randomSeed(analogRead(3));
 	Serial.begin(9600);
 	pinMode(2, OUTPUT); // ЛЕВО-Назад
 	pinMode(3, OUTPUT); // ЛЕВО-Вперед
@@ -109,15 +107,52 @@ void loop() {
 	/* Если включен автопилот */
 	if(AUTO) {
 
-		/* Если в пределах 20см есть препятствие, то начинает крутиться */
+		/* Если в пределах 30см есть препятствие, то начинает крутиться */
 		if(getDist() < 30) {
 			/* Крутиться до тех пор, пока не станет стенки */
-			
-			if(!SIDE) left();
-			else right();
+			left();
+			left();
+			left();
+			uint8_t left_side = getDist();
+			right();
+			right();
+			right();
+			uint8_t right_side = getDist();
+
+			if(right_side > left_side) {
+				right();
+				right();
+				right();
+			}
+			else if(left_side > right_side) {
+				left();
+				left();
+				left();
+			}
+			else {
+				back();
+				back();
+				back();
+				uint8_t rand_side = random(0, 2);
+				if(rand_side) {
+					left();
+					left();
+					left();
+					left();
+					left();
+					left();
+				} else {
+					right();
+					right();
+					right();
+					right();
+					right();
+					right();
+				}
+			}
+
 		} else {
 			forward();
-			SIDE = random(0, 2);
 		}
 	}
 
