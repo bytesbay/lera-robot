@@ -1,10 +1,7 @@
 #include <Arduino.h>
 
-const uint8_t ACTION_DELAY = 50;
+const uint8_t ACTION_DELAY = 100;
 bool AUTO = false; // Положение автопилота (ВКЛ\ВЫКЛ)
-uint8_t SIDE = 0;
-
-
 
 /* ДВИЖЕНИЕ */
 void forward() {
@@ -103,7 +100,6 @@ void setup() {
 	pinMode(11, OUTPUT);
 
 	pinMode(13, OUTPUT); // Фары
-	SIDE = random(0, 2);
 }
 void loop() {
 	if(Serial.available() > 0) {
@@ -149,17 +145,63 @@ void loop() {
 	if(AUTO) {
 
 		/* Если в пределах 20см есть препятствие, то начинает крутиться */
-		if(getDist() < 25 && !digitalRead(10)) {
+		if(getDist() < 15) {
 
-			/* Крутиться до тех пор, пока не станет стенки */
-			if(!SIDE) left();
-			else right();
-
+			left();
+			left();
+			left();
+			uint8_t left_side = getDist();
+			right();
+			right();
+			right();
+			right();
+			right();
+			right();
+			uint8_t right_side = getDist();
+			left();
+			left();
+			left();
+			if(left_side > right_side) {
+				left();
+				left();
+				left();
+				left();
+				left();
+				left();
+			}
+			else if(right_side > left_side) {
+				right();
+				right();
+				right();
+				right();
+				right();
+				right();
+			}
+			else {
+				uint8_t rand_side = random(0, 2);
+				back();
+				back();
+				back();
+				if(rand_side) {
+					left();
+					left();
+					left();
+					left();
+					left();
+					left();
+				} else {
+					right();
+					right();
+					right();
+					right();
+					right();
+					right();
+				}
+			}
 		}
 		/* Если ничего нет, то ехать вперед и обновлять сторону */
 		else {
 			forward();
-			SIDE = random(0, 2);
 		}
 	}
 	fullStop();
