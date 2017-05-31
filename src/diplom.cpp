@@ -1,55 +1,55 @@
 #include <Arduino.h>
 
-const uint8_t ACTION_DELAY = 100;
+const uint8_t ACTION_DELAY = 90;
 bool AUTO = false; // Положение автопилота (ВКЛ\ВЫКЛ)
 
 /* ДВИЖЕНИЕ */
-void forward() {
+void forward(uint8_t times = 1) {
 	digitalWrite(3, HIGH);
 	digitalWrite(4, HIGH);
-	delay(ACTION_DELAY);
+	delay(ACTION_DELAY * times);
 	digitalWrite(3, LOW);
 	digitalWrite(4, LOW);
 }
-void back() {
+void back(uint8_t times = 1) {
 	digitalWrite(2, HIGH);
 	digitalWrite(5, HIGH);
-	delay(ACTION_DELAY);
+	delay(ACTION_DELAY * times);
 	digitalWrite(2, LOW);
 	digitalWrite(5, LOW);
 }
-void left() {
+void left(uint8_t times = 1) {
 	digitalWrite(2, HIGH);
 	digitalWrite(4, HIGH);
-	delay(ACTION_DELAY);
+	delay(ACTION_DELAY * times);
 	digitalWrite(2, LOW);
 	digitalWrite(4, LOW);
 }
-void right() {
+void right(uint8_t times = 1) {
 	digitalWrite(5, HIGH);
 	digitalWrite(3, HIGH);
-	delay(ACTION_DELAY);
+	delay(ACTION_DELAY * times);
 	digitalWrite(5, LOW);
 	digitalWrite(3, LOW);
 }
-void forwardLeft() {
+void forwardLeft(uint8_t times = 1) {
 	digitalWrite(3, HIGH);
-	delay(ACTION_DELAY);
+	delay(ACTION_DELAY * times);
 	digitalWrite(3, LOW);
 }
-void forwardRight() {
+void forwardRight(uint8_t times = 1) {
 	digitalWrite(5, HIGH);
-	delay(ACTION_DELAY);
+	delay(ACTION_DELAY * times);
 	digitalWrite(5, LOW);
 }
-void backLeft() {
+void backLeft(uint8_t times = 1) {
 	digitalWrite(2, HIGH);
-	delay(ACTION_DELAY);
+	delay(ACTION_DELAY * times);
 	digitalWrite(2, LOW);
 }
-void backRight() {
+void backRight(uint8_t times = 1) {
 	digitalWrite(4, HIGH);
-	delay(ACTION_DELAY);
+	delay(ACTION_DELAY * times);
 	digitalWrite(4, LOW);
 }
 void fullStop() {
@@ -147,55 +147,24 @@ void loop() {
 		/* Если в пределах 20см есть препятствие, то начинает крутиться */
 		if(getDist() < 15) {
 
-			left();
-			left();
-			left();
+			left(6);
 			uint8_t left_side = getDist();
-			right();
-			right();
-			right();
-			right();
-			right();
-			right();
+			right(12);
 			uint8_t right_side = getDist();
-			left();
-			left();
-			left();
+			left(6);
 			if(left_side > right_side) {
-				left();
-				left();
-				left();
-				left();
-				left();
-				left();
+				left(12);
 			}
 			else if(right_side > left_side) {
-				right();
-				right();
-				right();
-				right();
-				right();
-				right();
+				right(12);
 			}
 			else {
 				uint8_t rand_side = random(0, 2);
-				back();
-				back();
-				back();
+				back(3);
 				if(rand_side) {
-					left();
-					left();
-					left();
-					left();
-					left();
-					left();
+					left(12);
 				} else {
-					right();
-					right();
-					right();
-					right();
-					right();
-					right();
+					right(12);
 				}
 			}
 		}
