@@ -9,37 +9,49 @@ void forward() {
 	digitalWrite(3, HIGH);
 	digitalWrite(4, HIGH);
 	delay(ACTION_DELAY);
+	digitalWrite(3, LOW);
+	digitalWrite(4, LOW);
 }
 void back() {
 	digitalWrite(2, HIGH);
 	digitalWrite(5, HIGH);
 	delay(ACTION_DELAY);
+	digitalWrite(5, LOW);
+	digitalWrite(2, LOW);
 }
 void left() {
 	digitalWrite(2, HIGH);
 	digitalWrite(4, HIGH);
 	delay(ACTION_DELAY);
+	digitalWrite(2, LOW);
+	digitalWrite(4, LOW);
 }
 void right() {
 	digitalWrite(5, HIGH);
 	digitalWrite(3, HIGH);
 	delay(ACTION_DELAY);
+	digitalWrite(3, LOW);
+	digitalWrite(5, LOW);
 }
 void forwardLeft() {
 	digitalWrite(3, HIGH);
 	delay(ACTION_DELAY);
+	digitalWrite(3, LOW);
 }
 void forwardRight() {
 	digitalWrite(5, HIGH);
 	delay(ACTION_DELAY);
+	digitalWrite(5, LOW);
 }
 void backLeft() {
 	digitalWrite(2, HIGH);
 	delay(ACTION_DELAY);
+	digitalWrite(2, LOW);
 }
 void backRight() {
 	digitalWrite(4, HIGH);
 	delay(ACTION_DELAY);
+	digitalWrite(4, LOW);
 }
 void fullStop() {
 	digitalWrite(2, LOW);
@@ -57,7 +69,22 @@ float getDist() {
 	delayMicroseconds(10);
 	digitalWrite(11, LOW);
 
-	return pulseIn(12, HIGH) / 29 / 2;
+	int distance = pulseIn(12, HIGH) / 29 / 2;
+
+	if(distance > 2000) distance = 0;
+	else if(distance > 500) distance = 500;
+
+	return distance;
+}
+
+/* ВИБРАЦИЯ */
+void vibrate() {
+	left();
+	right();
+	left();
+	right();
+	left();
+	right();
 }
 
 /* ОСВЕЩЕНИЕ */
@@ -95,6 +122,8 @@ void loop() {
 
 			case 'A': AUTO = true; break;
 			case 'O': AUTO = false; break;
+
+			case 'V': vibrate(); break;
 		}
 	}
 
