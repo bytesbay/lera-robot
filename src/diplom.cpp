@@ -117,6 +117,9 @@ void loop() {
 			right();
 			right();
 			right();
+			right();
+			right();
+			right();
 			uint8_t right_side = getDist();
 
 			if(right_side > left_side) {
